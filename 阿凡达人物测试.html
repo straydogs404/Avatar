@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测测你是什么阿凡达人物</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a3a 50%, #0d3328 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* 星空背景动画 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* 发光粒子效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #00ff88 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* 首页样式 */
+        .welcome-screen {
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 50%, #ff6b9d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #88ccaa;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        .avatar-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 40px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .avatar-preview::before {
+            content: '🌿';
+            font-size: 80px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccaa 100%);
+            color: #0a1628;
+            border: none;
+            padding: 18px 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.4);
+        }
+        
+        /* 答题界面样式 */
+        .quiz-screen {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .question-number {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .question {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .option:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+            transform: translateX(10px);
+        }
+        
+        .option-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .option-text {
+            font-size: 1.1rem;
+            flex: 1;
+        }
+        
+        /* 结果页面样式 */
+        .result-screen {
+            display: none;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .result-badge {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            position: relative;
+        }
+        
+        .result-badge::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, var(--result-color), transparent);
+            animation: rotate 3s linear infinite;
+        }
+        
+        .result-badge::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--result-bg) 0%, #0a1628 100%);
+        }
+        
+        .result-badge span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--result-color);
+        }
+        
+        .result-subtitle {
+            font-size: 1.1rem;
+            color: #88ccaa;
+            margin-bottom: 30px;
+        }
+        
+        .result-description {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+            line-height: 1.8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .trait {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .restart-btn {
+            background: transparent;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .share-hint {
+            margin-top: 30px;
+            color: #668888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .question {
+                font-size: 1.2rem;
+            }
+            
+            .option {
+                padding: 15px 20px;
+            }
+            
+            .result-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 发光粒子 -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <!-- 欢迎页面 -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="avatar-preview"></div>
+            <h1 class="title">测测你是什么<br>阿凡达人物</h1>
+            <p class="subtitle">穿越潘多拉星球，发现属于你的纳美灵魂</p>
+            <button class="start-btn" onclick="startQuiz()">开始测试</button>
+        </div>
+        
+        <!-- 答题页面 -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-number" id="questionNumber">问题 1/8</div>
+            <h2 class="question" id="questionText">加载中...</h2>
+            <div class="options" id="optionsContainer"></div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-badge" id="resultBadge">
+                <span id="resultIcon">🌿</span>
+            </div>
+            <h2 class="result-title" id="resultTitle">结果标题</h2>
+            <p class="result-subtitle" id="resultSubtitle">结果副标题</p>
+            <div class="traits" id="traitsContainer"></div>
+            <div class="result-description" id="resultDescription">
+                结果描述内容...
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">再测一次</button>
+            <p class="share-hint">截图分享给你的朋友，看看他们是什么阿凡达人物！</p>
+        </div>
+    </div>
+
+    <script>
+        // 题目数据
+        const questions = [
+            {
+                question: "当你第一次踏上潘多拉星球，你最想做什么？",
+                options: [
+                    { text: "立即探索神秘的森林，与大自然建立连接", icon: "🌲", type: "forest" },
+                    { text: "寻找海洋，感受水的力量和自由", icon: "🌊", type: "ocean" },
+                    { text: "飞向天空，体验骑乘伊卡兰的快感", icon: "🦅", type: "sky" },
+                    { text: "研究这个星球的生态系统和科学奥秘", icon: "🔬", type: "science" }
+                ]
+            },
+            {
+                question: "面对危险时，你的第一反应是？",
+                options: [
+                    { text: "勇敢地冲上去保护同伴", icon: "⚔️", type: "warrior" },
+                    { text: "冷静分析形势，寻找最佳解决方案", icon: "🧠", type: "wisdom" },
+                    { text: "运用自然的力量来化解危机", icon: "✨", type: "spirit" },
+                    { text: "快速适应环境，灵活应对", icon: "🌊", type: "ocean" }
+                ]
+            },
+            {
+                question: "你如何看待与自然的关系？",
+                options: [
+                    { text: "自然是神圣的母亲，我们必须敬畏和保护", icon: "🙏", type: "forest" },
+                    { text: "自然是力量的源泉，与之合一才能获得真正力量", icon: "💪", type: "warrior" },
+                    { text: "自然是值得研究的奇妙系统，充满未知", icon: "📚", type: "science" },
+                    { text: "自然是流动的生命，像海洋一样包容一切", icon: "🌊", type: "ocean" }
+                ]
+            },
+            {
+                question: "在部落中，你希望扮演什么角色？",
+                options: [
+                    { text: "领袖，带领大家走向未来", icon: "👑", type: "leader" },
+                    { text: "战士，守护部落的安全", icon: "🛡️", type: "warrior" },
+                    { text: "精神导师，传承文化和智慧", icon: "🔮", type: "spirit" },
+                    { text: "桥梁，连接不同世界和族群", icon: "🌉", type: "bridge" }
+                ]
+            },
+            {
+                question: "你最喜欢的潘多拉生物是？",
+                options: [
+                    { text: "伊卡兰——忠诚的天空伙伴", icon: "🦅", type: "sky" },
+                    { text: "托鲁克——传奇的魅影骑士", icon: "🐉", type: "warrior" },
+                    { text: "图尔库——优雅的海洋生灵", icon: "🐋", type: "ocean" },
+                    { text: "灵魂之树的种子——生命的奇迹", icon: "🌸", type: "spirit" }
+                ]
+            },
+            {
+                question: "当面临两个世界的冲突时，你会？",
+                options: [
+                    { text: "坚定地站在正义和自然的一边", icon: "⚖️", type: "forest" },
+                    { text: "努力寻找和平共处的可能性", icon: "☮️", type: "bridge" },
+                    { text: "用行动证明自己的选择和信念", icon: "🎯", type: "warrior" },
+                    { text: "用智慧化解矛盾，建立理解", icon: "💡", type: "wisdom" }
+                ]
+            },
+            {
+                question: "你的性格最接近哪种元素？",
+                options: [
+                    { text: "大地——稳重、包容、滋养生命", icon: "🌍", type: "forest" },
+                    { text: "火焰——热情、勇敢、充满力量", icon: "🔥", type: "warrior" },
+                    { text: "水——柔韧、适应、深邃智慧", icon: "💧", type: "ocean" },
+                    { text: "风——自由、灵动、连接万物", icon: "💨", type: "sky" }
+                ]
+            },
+            {
+                question: "你最大的愿望是什么？",
+                options: [
+                    { text: "成为真正的纳美人，完全融入这个美丽的世界", icon: "🎭", type: "bridge" },
+                    { text: "保护潘多拉，让它永远保持纯净", icon: "🛡️", type: "forest" },
+                    { text: "探索未知，发现更多宇宙的奥秘", icon: "🚀", type: "science" },
+                    { text: "建立连接，让所有生命和谐共存", icon: "🤝", type: "spirit" }
+                ]
+            }
+        ];
+
+        // 结果数据
+        const results = {
+            forest: {
+                title: "森林纳美人",
+                subtitle: "奥玛提卡亚部落的守护者",
+                icon: "🌲",
+                color: "#00ff88",
+                bg: "#0d3328",
+                description: "你是典型的森林纳美人，深深扎根于奥玛提卡亚部落。你敬畏自然，视伊娃为神圣的母亲，与灵魂之树有着深厚的精神连接。你勇敢、忠诚，愿意为保护家园和族人付出一切。你的灵魂与潘多拉的森林融为一体，能够听到大地的声音，感受到每一棵树木的呼吸。",
+                traits: ["敬畏自然", "精神强大", "忠诚勇敢", "部落守护者"]
+            },
+            ocean: {
+                title: "海洋纳美人",
+                subtitle: "梅特卡伊纳部落的自由灵魂",
+                icon: "🌊",
+                color: "#00ccff",
+                bg: "#0a2a3a",
+                description: "你属于神秘的梅特卡伊纳部落，海洋是你的家园，水是你的生命之源。你拥有与生俱来的适应力和包容性，像海洋一样深邃而富有智慧。你擅长与海洋生物沟通，能够在水中自由翱翔。你的性格柔韧而坚强，懂得顺应潮流但从不迷失方向。",
+                traits: ["自由奔放", "适应力强", "包容开放", "海洋之子"]
+            },
+            warrior: {
+                title: "纳美战士",
+                subtitle: "部落的守护之矛",
+                icon: "⚔️",
+                color: "#ff6b6b",
+                bg: "#3a0a0a",
+                description: "你是一位天生的战士，拥有无与伦比的勇气和战斗技巧。无论是骑乘托鲁克成为魅影骑士，还是在地面上与敌人搏斗，你都展现出非凡的战斗天赋。但你的力量不仅来自肌肉，更来自保护所爱之人的决心。你是部落的盾牌，是族人最可靠的后盾。",
+                traits: ["勇敢无畏", "战斗天赋", "保护欲强", "领导魅力"]
+            },
+            bridge: {
+                title: "阿凡达化身",
+                subtitle: "两个世界的桥梁",
+                icon: "🎭",
+                color: "#ffaa00",
+                bg: "#3a2a0a",
+                description: "你是独特的阿凡达化身，拥有人类和纳美人的双重身份。这让你成为连接两个世界的桥梁，能够理解不同的文化和视角。你经历了身份的转变，最终找到了真正的自我。你的经历让你更加包容，更有智慧，能够在冲突中寻找和平的可能。",
+                traits: ["双重身份", "文化桥梁", "适应转变", "寻求和平"]
+            },
+            spirit: {
+                title: "精神导师",
+                subtitle: "伊娃的神圣使者",
+                icon: "🔮",
+                color: "#cc88ff",
+                bg: "#2a0a3a",
+                description: "你是部落的精神导师，拥有与伊娃直接沟通的神圣能力。你传承着纳美人的古老智慧，能够解读灵魂之树的信息，引导族人走向正确的道路。你的存在本身就是神圣的，你的话语充满力量。在物质与精神之间，你选择了更高层次的觉醒。",
+                traits: ["精神觉醒", "智慧深邃", "神圣使命", "文化传承"]
+            },
+            science: {
+                title: "科学探索者",
+                subtitle: "潘多拉的求知者",
+                icon: "🔬",
+                color: "#88ccff",
+                bg: "#0a1a3a",
+                description: "你拥有科学家般的求知欲望，对潘多拉的生态系统充满好奇。你既尊重纳美人的智慧，也运用科学的方法来理解这个世界。你的探索精神让你发现了许多潘多拉的秘密，你的知识成为保护这个星球的重要武器。你相信理性与感性可以共存，科技与自然是互补的。",
+                traits: ["求知若渴", "理性分析", "探索精神", "知识守护"]
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = {
+            forest: 0,
+            ocean: 0,
+            warrior: 0,
+            bridge: 0,
+            spirit: 0,
+            science: 0
+        };
+
+        // 初始化星空背景
+        function initStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 初始化粒子效果
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (5 + Math.random() * 5) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 开始测试
+        function startQuiz() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            showQuestion();
+        }
+
+        // 显示问题
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `问题 ${currentQuestion + 1}/${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            // 更新进度条
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // 生成选项
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <span class="option-icon">${option.icon}</span>
+                    <span class="option-text">${option.text}</span>
+                `;
+                optionDiv.onclick = () => selectOption(option.type);
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        // 选择选项
+        function selectOption(type) {
+            scores[type]++;
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                // 添加过渡动画
+                const quizScreen = document.getElementById('quizScreen');
+                quizScreen.style.animation = 'none';
+                setTimeout(() => {
+                    quizScreen.style.animation = 'slideIn 0.5s ease-out';
+                    showQuestion();
+                }, 10);
+            } else {
+                showResult();
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            // 找出得分最高的类型
+            let maxScore = 0;
+            let resultType = 'forest';
+            
+            for (const [type, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    resultType = type;
+                }
+            }
+            
+            const result = results[resultType];
+            
+            // 设置CSS变量
+            document.documentElement.style.setProperty('--result-color', result.color);
+            document.documentElement.style.setProperty('--result-bg', result.bg);
+            
+            // 填充结果内容
+            document.getElementById('resultIcon').textContent = result.icon;
+            document.getElementById('resultTitle').textContent = result.title;
+            document.getElementById('resultSubtitle').textContent = result.subtitle;
+            document.getElementById('resultDescription').textContent = result.description;
+            
+            // 生成特质标签
+            const traitsContainer = document.getElementById('traitsContainer');
+            traitsContainer.innerHTML = '';
+            result.traits.forEach(trait => {
+                const traitSpan = document.createElement('span');
+                traitSpan.className = 'trait';
+                traitSpan.textContent = trait;
+                traitsContainer.appendChild(traitSpan);
+            });
+        }
+
+        // 重新开始
+        function restartQuiz() {
+            currentQuestion = 0;
+            scores = {
+                forest: 0,
+                ocean: 0,
+                warrior: 0,
+                bridge: 0,
+                spirit: 0,
+                science: 0
+            };
+            
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('welcomeScreen').style.display = 'block';
+        }
+
+        // 初始化
+        window.onload = function() {
+            initStars();
+            initParticles();
+        };
+    </script>
+</body>
+</html>
